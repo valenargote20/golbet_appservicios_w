@@ -1,8 +1,10 @@
 ﻿// GolBet.Web/Controllers/MatchesController.cs  (versión completa) 
 using GolBet.Entities.Enums;
+using GolBet.Repositories.Data;
 using GolBet.Services.DTOs;
 //using GolBet.Services.Implementations;
 using GolBet.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -14,8 +16,15 @@ public class MatchesController : Controller
     private readonly IMatchService _matchService;
     private readonly ITeamService _teamService;
 
-    public MatchesController(IMatchService matchService)
-        => _matchService = matchService;
+    //ublic MatchesController(IMatchService matchService)
+    //   => _matchService = matchService;
+
+    public MatchesController(IMatchService matchService, ITeamService teamService)
+    {
+        _matchService = matchService;
+        _teamService = teamService;
+    }
+
 
     // GET /Matches            -> all matches 
     // GET /Matches?status=Scheduled -> filtered board 
@@ -36,7 +45,7 @@ public class MatchesController : Controller
         return View(match);    }
 
 
-
+    [Authorize(Roles = DbSeeder.AdminRole)]
     // GET /Matches/Create 
 
     public async Task<IActionResult> Create()
@@ -50,7 +59,7 @@ public class MatchesController : Controller
     }
 
 
-
+    [Authorize(Roles = DbSeeder.AdminRole)]
     [HttpPost, ValidateAntiForgeryToken]
 
     public async Task<IActionResult> Create(MatchFormDto dto)
@@ -164,7 +173,7 @@ public class MatchesController : Controller
     }
 
 
-
+    [Authorize(Roles = DbSeeder.AdminRole)]
     // POST /Matches/Deactivate/5 
 
     [HttpPost, ValidateAntiForgeryToken]
