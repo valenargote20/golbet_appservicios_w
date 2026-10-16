@@ -12,7 +12,7 @@ public class MatchRepository : GenericRepository<Match>, IMatchRepository
 {
     public MatchRepository(AppDbContext context) : base(context) { }
 
-    public async Task<IEnumerable<Match>> GetAllWithTeamsAsync(MatchStatus? status = null)
+    public async Task<IEnumerable<Match>> GetAllWithTeamsAsync(MatchStatus? status = null, string? search = null)
     {
         var query = _dbSet
 
@@ -25,8 +25,19 @@ public class MatchRepository : GenericRepository<Match>, IMatchRepository
         if (status.HasValue)
             query = query.Where(m => m.Status == status.Value);
 
+
+        //Nuevo: Filtro de busqueda por nonmbre de equipo entrega#2
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim().ToLower();
+            query = query.Where(m =>
+                m.HomeTeam.Name.ToLower().Contains(term) ||
+                m.AwayTeam.Name.ToLower().Contains(term));
+        }
+
         return await query.OrderBy(m => m.Date).ToListAsync();
     }
+
     public async Task<Match?> GetByIdWithDetailsAsync(int id)
         => await _dbSet
             .Include(m => m.HomeTeam)
